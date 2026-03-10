@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Dana Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #121212;
+      --surface: #1a1a1a;
+      --surface2: #222222;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text: #f0f0f0;
+      --text-muted: rgba(255,255,255,0.4);
+      --accent: #00c2ff;
+      --accent2: #0088bb;
+      --danger: #ff4466;
+      --grid-color: rgba(255,255,255,0.045);
+      --grid-size: 48px;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+      height: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+      opacity: 0;
+      animation: fadeInPage 0.8s ease forwards;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid-color) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, var(--grid-color) 1.5px, transparent 1.5px);
+      background-size: var(--grid-size) var(--grid-size);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Radial glow center */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(0,194,255,0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes fadeInPage {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,194,255,0.1); }
+      50%       { box-shadow: 0 0 40px rgba(0,194,255,0.2); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes resultIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      animation: fadeInUp 0.7s 0.1s ease both;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,194,255,0.08);
+      border: 1px solid rgba(0,194,255,0.2);
+      border-radius: 100px;
+      padding: 3px 12px;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .header-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 8vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: #fff;
+    }
+
+    .title span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin-top: 0.6rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.8rem;
+      animation: fadeInUp 0.7s 0.25s ease both;
+      transition: border-color 0.3s;
+    }
+
+    .card:hover {
+      border-color: var(--border-hover);
+    }
+
+    /* ── Form ── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 16px;
+      font-size: 0.95rem;
+      color: var(--accent);
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px 14px 52px;
+      font-family: 'Fira Code', monospace;
+      font-size: 1.05rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      letter-spacing: 0.02em;
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,194,255,0.1);
+    }
+
+    .input-hint {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Button ── */
+    .btn-generate {
+      width: 100%;
+      padding: 15px;
+      background: #ffffff;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      background: #e0e0e0;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255,255,255,0.1);
+    }
+
+    .btn-generate:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      animation: none;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .btn-generate.loading .spinner { display: block; }
+    .btn-generate.loading .btn-text { display: none; }
+
+    /* ── Result ── */
+    .result-section {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      animation: resultIn 0.5s ease both;
+    }
+
+    .result-section.visible {
+      display: flex;
+    }
+
+    .result-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .result-img-wrap {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      line-height: 0;
+    }
+
+    .result-img-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .btn-download, .btn-reset {
+      padding: 13px;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-download {
+      background: rgba(0,194,255,0.12);
+      color: var(--accent);
+      border: 1.5px solid rgba(0,194,255,0.25);
+    }
+
+    .btn-download:hover {
+      background: rgba(0,194,255,0.2);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .btn-reset {
+      background: rgba(255,68,102,0.08);
+      color: var(--danger);
+      border: 1.5px solid rgba(255,68,102,0.2);
+    }
+
+    .btn-reset:hover {
+      background: rgba(255,68,102,0.15);
+      border-color: var(--danger);
+      transform: translateY(-2px);
+    }
+
+    /* ── Error ── */
+    .error-msg {
+      display: none;
+      background: rgba(255,68,102,0.08);
+      border: 1px solid rgba(255,68,102,0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: var(--danger);
+      letter-spacing: 0.02em;
+    }
+
+    .error-msg.visible { display: block; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.15);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      animation: fadeInUp 0.7s 0.4s ease both;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-badge">Generator Tool</div>
+      <h1 class="title">Fake <span>Dana</span><br>Generator</h1>
+      <p class="subtitle">Masukkan nominal dan generate screenshot Dana palsu</p>
+    </header>
+
+    <!-- Form Card -->
+    <div class="card">
+      <div class="field">
+        <label>Nominal Dana</label>
+        <div class="input-wrap">
+          <span class="input-prefix">Rp</span>
+          <input
+            type="text"
+            id="nominalInput"
+            placeholder="100.000"
+            autocomplete="off"
+            inputmode="numeric"
+          />
+        </div>
+        <span class="input-hint">Contoh: 10000 atau 1500000</span>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <button class="btn-generate" id="generateBtn" onclick="handleGenerate()">
+        <div class="spinner"></div>
+        <span class="btn-text">⚡ Generate</span>
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div class="result-section" id="resultSection">
+      <span class="result-label">Hasil Generate</span>
+      <div class="result-img-wrap">
+        <img id="resultImg" src="" alt="Dana Result" />
+      </div>
+      <div class="result-actions">
+        <button class="btn-download" onclick="handleDownload()">
+          ↓ Download
+        </button>
+        <button class="btn-reset" onclick="handleReset()">
+          ✕ Reset
+        </button>
+      </div>
+    </div>
+
+    <footer class="footer">For educational purposes only &mdash; not affiliated with Dana</footer>
+  </div>
+
+  <script>
+    const input = document.getElementById('nominalInput')
+    const btn = document.getElementById('generateBtn')
+    const resultSection = document.getElementById('resultSection')
+    const resultImg = document.getElementById('resultImg')
+    const errorMsg = document.getElementById('errorMsg')
+
+    let currentBlob = null
+
+    // Format input while typing
+    input.addEventListener('input', () => {
+      const raw = input.value.replace(/\D/g, '')
+      if (raw) {
+        input.value = Number(raw).toLocaleString('id-ID')
+      }
+    })
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleGenerate()
+    })
+
+    function showError(msg) {
+      errorMsg.textContent = msg
+      errorMsg.classList.add('visible')
+    }
+
+    function hideError() {
+      errorMsg.classList.remove('visible')
+    }
+
+    async function handleGenerate() {
+      const raw = input.value.replace(/\./g, '').replace(/,/g, '').trim()
+      hideError()
+
+      if (!raw || isNaN(Number(raw)) || Number(raw) <= 0) {
+        showError('⚠ Masukkan nominal yang valid.')
+        return
+      }
+
+      // Loading state
+      btn.classList.add('loading')
+      btn.disabled = true
+      resultSection.classList.remove('visible')
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ angka: raw })
+        })
+
+        if (!res.ok) {
+          const err = await res.json()
+          throw new Error(err.error || 'Gagal generate')
+        }
+
+        const blob = await res.blob()
+        currentBlob = blob
+        const url = URL.createObjectURL(blob)
+        resultImg.src = url
+        resultSection.classList.add('visible')
+      } catch (e) {
+        showError('⚠ ' + e.message)
+      } finally {
+        btn.classList.remove('loading')
+        btn.disabled = false
+      }
+    }
+
+    function handleDownload() {
+      if (!currentBlob) return
+      const url = URL.createObjectURL(currentBlob)
+      const a = document.createElement('a')
+      a.href = url
+      const nominal = input.value.replace(/\./g, '')
+      a.download = `dana-${nominal}.png`
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+
+    function handleReset() {
+      input.value = ''
+      resultSection.classList.remove('visible')
+      hideError()
+      currentBlob = null
+      resultImg.src = ''
+      input.focus()
+    }
+  </script>
+</body>
+</html>
